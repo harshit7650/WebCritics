@@ -1,45 +1,26 @@
-import React, { useState } from "react";
-import style from "./Addproduct.module.css";
-import { ApplicationApi, getApplicationApi, getCategoryApi } from "../api/api";
+import React, { useState, useEffect } from "react";
+import style from "./Editproduct.module.css";
+import { updateapi } from "../api/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const Addproduct = (props) => {
-  const [products, setproducts] = useState({
+const Editproduct = (props) => {
+  const [editproducts, seteditproducts] = useState({
     companyName: "",
     category: "",
     logo: "",
     link: "",
     Description: "",
+    id: "",
   });
 
-  function companyChange(e) {
-    setproducts({ ...products, companyName: e.target.value });
-  }
-
-  function categoryChange(event) {
-    setproducts({ ...products, category: event.target.value });
-  }
-
-  function logoChange(event) {
-    setproducts({ ...products, logo: event.target.value });
-  }
-
-  function linkChange(event) {
-    setproducts({ ...products, link: event.target.value });
-  }
-
-  function DescriptionChange(event) {
-    setproducts({ ...products, Description: event.target.value });
-  }
-
-  const addproduct = async (e) => {
+  const updateClick = async (id) => {
     if (
-      products.companyName === "" ||
-      products.category === "" ||
-      products.logo === "" ||
-      products.link === "" ||
-      products.Description === ""
+      editproducts.companyName === "" ||
+      editproducts.category === "" ||
+      editproducts.logo === "" ||
+      editproducts.link === "" ||
+      editproducts.Description === ""
     ) {
       toast.error("please fill all the feilds", {
         position: toast.POSITION.TOP_RIGHT,
@@ -48,56 +29,38 @@ const Addproduct = (props) => {
     }
 
     try {
-      const response = await ApplicationApi({
-        companyName: products.companyName,
-        category: products.category,
-        logo: products.logo,
-        link: products.link,
-        Description: products.Description,
-      });
-
-      if (response) {
-        toast.success("application added successfully", {
+      const data = await updateapi(id, editproducts);
+      if (data) {
+        toast.success("application updated successfully", {
           position: toast.POSITION.TOP_RIGHT,
         });
-        setproducts({
-          companyName: "",
-          category: "",
-          logo: "",
-          link: "",
-          Description: "",
-        })
-        try {
-          const data = await getApplicationApi();
-          props.pullapplicationData(data);
-        } catch (error) {
-          toast.error("Error fetching products", {
-            position: toast.POSITION.TOP_RIGHT,
-          });
-        }
-
-        try {
-          const data = await getCategoryApi();
-          props.pullCategory(data);
-        } catch (error) {
-          toast.error("Error fetching products", {
-            position: toast.POSITION.TOP_RIGHT,
-          });
-        }
       }
     } catch (error) {
-      toast.error("product listing  failed : try again later", {
+      toast.error("Error updating application : try again later", {
         position: toast.POSITION.TOP_RIGHT,
       });
     }
   };
+
+  useEffect(() => {
+    seteditproducts({
+      companyName: props.pusheditproduct?.companyName,
+      category: props.pusheditproduct?.category,
+      logo: props.pusheditproduct?.logo,
+      link: props.pusheditproduct?.link,
+      Description: props.pusheditproduct?.Description,
+      id: props.pusheditproduct?._id,
+    });
+  }, [props.pusheditproduct]);
+
+  useEffect(() => {}, []);
 
   return (
     <div>
       <ToastContainer />
       <div
         className="modal fade"
-        id="exampleModal2"
+        id="exampleModal3"
         tabIndex="-1"
         aria-labelledby="exampleModalLabel"
         aria-hidden="true"
@@ -116,8 +79,13 @@ const Addproduct = (props) => {
                         type="text"
                         placeholder="Name of the company"
                         className={style.inputs}
-                        value={products.companyName}
-                        onChange={companyChange}
+                        value={editproducts.companyName}
+                        onChange={(e) =>
+                          seteditproducts({
+                            ...editproducts,
+                            companyName: e.target.value,
+                          })
+                        }
                       />
                     </span>
                   </div>
@@ -127,8 +95,13 @@ const Addproduct = (props) => {
                         type="text"
                         placeholder="Category"
                         className={style.inputs}
-                        value={products.category}
-                        onChange={categoryChange}
+                        value={editproducts.category}
+                        onChange={(e) =>
+                          seteditproducts({
+                            ...editproducts,
+                            category: e.target.value,
+                          })
+                        }
                       />
                     </span>
                   </div>
@@ -138,8 +111,13 @@ const Addproduct = (props) => {
                         type="text"
                         placeholder="Add logo url"
                         className={style.inputs}
-                        value={products.logo}
-                        onChange={logoChange}
+                        value={editproducts.logo}
+                        onChange={(e) =>
+                          seteditproducts({
+                            ...editproducts,
+                            logo: e.target.value,
+                          })
+                        }
                       />
                     </span>
                   </div>
@@ -149,8 +127,13 @@ const Addproduct = (props) => {
                         type="text"
                         placeholder="Link of product"
                         className={style.inputs}
-                        value={products.link}
-                        onChange={linkChange}
+                        value={editproducts.link}
+                        onChange={(e) =>
+                          seteditproducts({
+                            ...editproducts,
+                            link: e.target.value,
+                          })
+                        }
                       />
                     </span>
                   </div>
@@ -160,8 +143,13 @@ const Addproduct = (props) => {
                         type="text"
                         placeholder="Add description"
                         className={style.inputs}
-                        value={products.Description}
-                        onChange={DescriptionChange}
+                        value={editproducts.Description}
+                        onChange={(e) =>
+                          seteditproducts({
+                            ...editproducts,
+                            Description: e.target.value,
+                          })
+                        }
                       />
                     </span>
                   </div>
@@ -169,9 +157,9 @@ const Addproduct = (props) => {
                 <button
                   className={style.buttonchip2}
                   data-bs-dismiss="modal"
-                  onClick={addproduct}
+                  onClick={() => updateClick(editproducts.id)}
                 >
-                  +Add
+                  +Update
                 </button>
               </div>
               <div class="col-6" style={{ background: "#36416A" }}>
@@ -189,4 +177,4 @@ const Addproduct = (props) => {
   );
 };
 
-export default Addproduct;
+export default Editproduct;

@@ -1,10 +1,88 @@
-import React from "react";
+import React, { useState } from "react";
 import style from "./Signup.module.css";
-import Login from "../Login/Login";
-const Signup = () => {
+import { SignupApi } from "../api/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+const Signup = (props) => {
+  const [signup, setsignup] = useState({
+    name: "",
+    email: "",
+    mobile: "",
+    password: "",
+  });
+
+  function signupNameChange(e) {
+    setsignup({ ...signup, name: e.target.value });
+  }
+
+  function signupEmailChange(event) {
+    setsignup({ ...signup, email: event.target.value });
+  }
+
+  function signupMobileChange(event) {
+    setsignup({ ...signup, mobile: event.target.value });
+  }
+
+  function signupPasswordChange(event) {
+    setsignup({ ...signup, password: event.target.value });
+  }
+
+  const signupSubmit = async (e) => {
+    if (
+      signup.name === "" ||
+      signup.email === "" ||
+      signup.mobile === "" ||
+      signup.password === ""
+    ) {
+      toast.error("please fill all the feilds", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+      return;
+    }
+
+    // Validate email field
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(signup.email)) {
+      toast.error("Please enter a valid email address: xyz@gmail.com", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+      return;
+    }
+
+    // Validate mobile field
+    const mobileRegex = /^[0-9]{10}$/;
+    if (!mobileRegex.test(signup.mobile)) {
+      toast.error("Please enter  10 digit mobile number.", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+      return;
+    }
+
+    try {
+      const response = await SignupApi({
+        name: signup.name,
+        email: signup.email,
+        mobile: signup.mobile,
+        password: signup.password,
+      });
+
+      if (response) {
+        toast.success("Signup successfully", {
+          position: toast.POSITION.TOP_RIGHT,
+        });
+        props.pullRedirect(true);
+      }
+    } catch (error) {
+      toast.error("Signup Failed", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+    }
+  };
+
   return (
     <div>
-    <Login/>
+      <ToastContainer />
       <div
         className="modal fade"
         id="exampleModal"
@@ -33,6 +111,8 @@ const Signup = () => {
                         type="text"
                         placeholder="Name"
                         className={style.inputs}
+                        value={signup.name}
+                        onChange={signupNameChange}
                       />
                     </span>
                   </div>
@@ -44,9 +124,11 @@ const Signup = () => {
                     </span>{" "}
                     <span>
                       <input
-                        type="text"
                         placeholder="Email"
                         className={style.inputs}
+                        type="email"
+                        value={signup.email}
+                        onChange={signupEmailChange}
                       />
                     </span>
                   </div>
@@ -58,9 +140,11 @@ const Signup = () => {
                     </span>{" "}
                     <span>
                       <input
-                        type="text"
                         placeholder="Mobile"
                         className={style.inputs}
+                        type="tel"
+                        value={signup.mobile}
+                        onChange={signupMobileChange}
                       />
                     </span>
                   </div>
@@ -72,9 +156,11 @@ const Signup = () => {
                     </span>{" "}
                     <span>
                       <input
-                        type="text"
                         placeholder="Password"
                         className={style.inputs}
+                        type="password"
+                        value={signup.password}
+                        onChange={signupPasswordChange}
                       />
                     </span>
                   </div>
@@ -85,16 +171,30 @@ const Signup = () => {
                     Already have an account?
                   </div>
                   <div class=" bd-highlight">
-                    <button className={style.loginbtn} data-bs-toggle="modal" data-bs-target="#exampleModal1">Log in</button>
+                    <button
+                      className={style.loginbtn}
+                      data-bs-toggle="modal"
+                      data-bs-target="#exampleModal1"
+                    >
+                      Log in
+                    </button>
                   </div>
                 </div>
 
-                <button className={style.buttonchip2} data-bs-dismiss="modal">Signup</button>
+                <button
+                  className={style.buttonchip2}
+                  data-bs-dismiss="modal"
+                  onClick={signupSubmit}
+                >
+                  Signup
+                </button>
               </div>
-              <div class="col-6"  style={{background:"#36416A"}}>
-                     <div className={style.feedbackstext}>Feedback</div>
-                     <div  className={style.feedbacksitem}>Add your <br/> product and <br/> rate other <br/> items.............</div>
-
+              <div class="col-6" style={{ background: "#36416A" }}>
+                <div className={style.feedbackstext}>Feedback</div>
+                <div className={style.feedbacksitem}>
+                  Add your <br /> product and <br /> rate other <br />{" "}
+                  items.............
+                </div>
               </div>
             </div>
           </div>
@@ -105,84 +205,3 @@ const Signup = () => {
 };
 
 export default Signup;
-
-//   <div className="container-fluid">
-//     <div className="row mt-5">
-//       <div className="col-7">
-//         <div>
-//           <h4>Signup to continue</h4>
-//         </div>
-//         <div className="d-flex flex-column bd-highlight">
-//           <div className="p-2 bd-highlight mt-4">
-//             <span>
-//               <img
-//                 src={require("../Images/user.png")}
-//                 alt="Logo"
-//                 style={{ height: "27px", width: "27px" }}
-//               />
-//             </span>{" "}
-//             <span>
-//               <input
-//                 type="text"
-//                 placeholder="Name"
-//                 className={style.inputs}
-//               />
-//             </span>
-//           </div>
-//           <div className="p-2 bd-highlight mt-4">
-//             {" "}
-//             <span>
-//               {" "}
-//               <img
-//                 src={require("../Images/email.png")}
-//                 alt="Logo"
-//               />
-//             </span>{" "}
-//             <span>
-//               <input
-//                 type="text"
-//                 placeholder="Email"
-//                 className={style.inputs}
-//               />
-//             </span>
-//           </div>
-//           <div className="p-2 bd-highlight mt-4">
-//             {" "}
-//             <span>
-//               {" "}
-//               <img
-//                 src={require("../Images/mobile.png")}
-//                 alt="Logo"
-//               />
-//             </span>{" "}
-//             <span>
-//               <input
-//                 type="text"
-//                 placeholder="Mobile"
-//                 className={style.inputs}
-//               />
-//             </span>
-//           </div>
-//           <div className="p-2 bd-highlight mt-4">
-//             {" "}
-//             <span>
-//               {" "}
-//               <img
-//                 src={require("../Images/password.png")}
-//                 alt="Logo"
-//               />
-//             </span>{" "}
-//             <span>
-//               <input
-//                 type="text"
-//                 placeholder="Password"
-//                 className={style.inputs}
-//               />
-//             </span>
-//           </div>
-//         </div>
-
-//       </div>
-//       <div className="col-5">world</div>
-//     </div>
-//   </div>
